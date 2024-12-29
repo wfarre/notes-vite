@@ -1,3 +1,4 @@
+import { redirect } from "react-router";
 import { currentUrl } from "~/data/constant";
 import type { Note } from "~/models/Note";
 
@@ -54,7 +55,12 @@ export const createEmptyNote = async (callback: (path: string) => void) => {
 };
 
 export const updateMemo = (
-  memo: { id: string; title: string; content: string; tags: string[] },
+  memo: {
+    id: string;
+    title: string;
+    content: string;
+    tags: string[];
+  },
   callback: (path: string) => void
 ) => {
   fetch(currentUrl + "/notes/" + memo.id, {
@@ -68,6 +74,9 @@ export const updateMemo = (
     body: JSON.stringify(memo),
   })
     .then((res) => res.json())
-    .then((data) => callback("/notes"))
+    .then((data) => {
+      callback("/notes");
+      redirect(`/notes/${memo.id}`);
+    })
     .catch((err) => console.log(err));
 };

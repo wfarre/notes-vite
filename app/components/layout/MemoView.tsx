@@ -2,19 +2,17 @@ import React, { useEffect, useState, type ChangeEvent } from "react";
 import Button from "../ui/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faTag } from "@fortawesome/free-solid-svg-icons";
-// import  { Note, NoteApi } from "~/models/Note";
 import { updateMemo } from "~/utils/utils";
+import { Form } from "react-router";
 
 interface Props {
-  title: string;
-  content: string;
-  tags: string[];
+  title?: string;
+  content?: string;
+  tags?: string[];
   date?: string;
   id?: string;
-  fetchData: (path: string) => void;
+  // fetchData: (path: string) => void;
 }
-
-const currentUrl = "http://localhost:3000";
 
 const MemoView = (props: Props) => {
   const [memo, setMemo] = useState<{
@@ -46,13 +44,14 @@ const MemoView = (props: Props) => {
   };
 
   return (
-    <form
-      action="/notes"
-      className="flex flex-col justify-between h-full"
-      onSubmit={(e) => {
-        e.preventDefault();
-        updateMemo(memo, props.fetchData);
-      }}
+    <Form
+      // action="/notes"
+      method="patch"
+      className="flex flex-col justify-between h-full "
+      // onSubmit={(e) => {
+      // e.preventDefault();
+      // updateMemo(memo, props.fetchData);
+      // }}
     >
       <header className="border-b pb-4 flex-1">
         <input
@@ -117,7 +116,7 @@ const MemoView = (props: Props) => {
         <Button className={"bg-blue-700 text-white"} title="Save Note" />
         <Button className={"bg-slate-200 text-slate-700"} title="Cancel" />
       </footer>
-    </form>
+    </Form>
   );
 };
 

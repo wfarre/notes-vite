@@ -21,7 +21,7 @@ export const useFetch = <T extends NoteApi>(
 
   const fetchData = (path: String) => {
     setIsLoading(true);
-    fetch(currentUrl + "/notes", {
+    fetch(currentUrl + path, {
       method: "GET",
       headers: headers,
     })

@@ -9,6 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
+import { Welcome } from "./welcome/welcome";
+import { createEmptyNote } from "./utils/utils";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -42,8 +44,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// export const action = async () => {
+//   const note = await createEmptyNote(() => {
+//     console.log("notes");
+//     return { note };
+//   });
+//   return {};
+// };
+
 export default function App() {
-  return <Outlet />;
+  return (
+    <div>
+      <Outlet />
+      {/* <Welcome /> */}
+    </div>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

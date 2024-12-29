@@ -19,7 +19,15 @@ const Button = (props: Props) => {
       onClick={handleClick}
     >
       {props.icon && <FontAwesomeIcon icon={props.icon} />}
-      {props.title}
+      <p
+        className={`${
+          props.icon
+            ? "absolute text-opacity-0 left-0 top-0 scale-0 sm:inline sm:relative sm:scale-100"
+            : ""
+        }`}
+      >
+        {props.title}
+      </p>
     </button>
   );
 };
