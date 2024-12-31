@@ -9,7 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
-import { Welcome } from "./welcome/welcome";
+// import { Welcome } from "./welcome/welcome";
 import { createEmptyNote } from "./utils/utils";
 
 export const links: Route.LinksFunction = () => [
@@ -89,3 +89,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     </main>
   );
 }
+
+// export const HydrateFallback = () => {
+//   return <>Loading...</>;
+// };

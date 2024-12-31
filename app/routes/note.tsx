@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import MemoView from "~/components/layout/MemoView";
-import { headers, useFetch } from "~/hooks/useFetch";
 import type { Route } from "../+types/root";
-import { formatNotes } from "~/welcome/welcome";
-import { Note, type NoteApi } from "~/models/Note";
+import { Note } from "~/models/Note";
 import { NoteFactory } from "~/factories/NoteFactory";
-import DeleteArchiveMemoSection from "~/components/layout/EditMemoButtons";
-import { currentUrl } from "~/data/constant";
 import { redirect } from "react-router";
 import EditMemoButtons from "~/components/layout/EditMemoButtons";
+import { getNotes, updateNote } from "~/utils/utils";
 
 export const clientLoader = async ({ params }: Route.LoaderArgs) => {
   const noteId = params.noteId;
   try {
-    const response = await fetch(currentUrl + `/notes/${noteId}`);
+    const response = await getNotes(noteId);
     if (!response.ok) {
       throw new Error("Oops! Something went wrong!");
     }
@@ -23,55 +20,17 @@ export const clientLoader = async ({ params }: Route.LoaderArgs) => {
   }
 };
 
-export const action = async ({ request, params }: Route.ActionArgs) => {
-  // console.log(request);
-  const requestMethod = request.method;
-
+export const clientAction = async ({
+  request,
+  params,
+}: Route.ClientActionArgs) => {
   try {
-    switch (requestMethod) {
-      case "DELETE":
-        try {
-          console.log("prout du cul");
-
-          const res = await fetch(currentUrl + "/notes/" + params.noteId, {
-            method: "DELETE",
-            headers: headers,
-          });
-          console.log(res);
-
-          if (!res.ok) {
-            throw new Error("couldn't delete");
-          }
-          console.log("deleted");
-
-          redirect("/notes");
-        } catch (error) {
-          console.log(error);
-        }
-
-        break;
-      case "PATCH":
-        const formData = await request.formData();
-        const updates = Object.fromEntries(formData);
-        const updatedNote = {
-          title: updates.title ? updates.title : undefined,
-          content: updates.content ? updates.content : undefined,
-          tags: updates.tags ? updates.tags : undefined,
-        };
-        const response = await fetch(currentUrl + "/notes/" + params.noteId, {
-          method: "PATCH",
-          headers: headers,
-          body: JSON.stringify(updatedNote),
-        });
-        if (!response.ok) {
-          throw new Error("oops");
-        }
-        redirect(`/notes/${params.id}`);
-        break;
-      default:
-        console.log("method not recognized");
-        break;
+    const formData = await request.formData();
+    const response = await updateNote(formData, params.noteId);
+    if (!response?.ok) {
+      throw new Error("oops");
     }
+    redirect(`/notes/${params.id}`);
   } catch (error) {
     console.log(error);
   }
@@ -87,23 +46,18 @@ const noteView = ({ loaderData }: Route.ComponentProps) => {
   }, [loaderData]);
 
   return (
-    // <p>{loaderData.noteId}</p>
-    <div className="flex h-full ">
-      <div className="flex-grow border-r-2">
+    <div className="flex h-full sm:flex-row flex-col-reverse row-span-full">
+      <div className="flex-grow sm:border-r-[1px]">
         <MemoView
           title={note?.title}
           content={note?.content}
           tags={note?.tags}
           date={note?.date}
           id={note?.id}
-          // fetchData={fetchData}
         />
       </div>
       <div>
-        <EditMemoButtons
-          currentNoteId={note?.id}
-          // fetchData={fetchData}
-        />
+        <EditMemoButtons currentNoteId={note?.id} />
       </div>
     </div>
   );

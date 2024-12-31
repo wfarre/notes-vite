@@ -9,90 +9,76 @@ import {
   faTag,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router";
+
+const navigationLinks = [
+  {
+    title: "All Notes",
+    icon: faHouse,
+    displayOnDesktop: true,
+    link: "/notes",
+  },
+  {
+    title: "search",
+    icon: faSearch,
+    displayOnDesktop: false,
+    link: "/notes",
+  },
+  {
+    title: "Archived Notes",
+    icon: faBoxArchive,
+    displayOnDesktop: true,
+    link: "/archived",
+  },
+  {
+    title: "tags",
+    icon: faTag,
+    displayOnDesktop: true,
+    link: "/tags",
+  },
+  {
+    title: "All Notes",
+    icon: faGear,
+    displayOnDesktop: true,
+    link: "/settings",
+  },
+];
+
 interface Props {
-  currentPage: "all" | "archived";
-  setCurrentPage: (newState: "all" | "archived") => void;
+  currentPage: "all notes" | "archived notes" | "search" | "tags" | "settings";
+  setCurrentPage: (
+    newState: "all notes" | "archived notes" | "search" | "tags" | "settings",
+  ) => void;
 }
 
 const SideNavbar = (props: Props) => {
-  const handleSetCurrentPage = (current: "all" | "archived") => {
+  const handleSetCurrentPage = (current: "all notes" | "archived notes") => {
     props.setCurrentPage(current);
   };
 
   return (
-    <nav className="grid sm:h-[100vh] items-center grid-cols-1 border-r-[1px] border-r-blue-300 content-start h-auto row-span-12 col-span-full sm:row-span-1 sm:col-span-1 sm:bg-transparent bg-slate-400">
-      <div className="border-b-[1px] border-blue-300 mx-4 self-start ">
+    <nav className="grid sm:h-[100vh] items-center grid-cols-1 sm:border-r-[1px] border-r-blue-300 content-start h-auto row-span-12 col-span-full sm:row-span-1 sm:col-span-1 sm:bg-transparent py-4 border-t-[1px]">
+      <div className="sm:border-b-[1px] border-blue-300 mx-4 self-start ">
         <h1 className="mb-5 mt-5 hidden sm:block">Notes</h1>
         <div className="mb-2">
-          <ul className="flex sm:flex-col justify-between sm:justify-start">
-            <li>
-              <Link
-                to={"/"}
-                className={`py-2 px-3 flex gap-4 rounded-xl items-center ${
-                  props.currentPage === "all"
-                    ? "bg-slate-200"
-                    : "bg-transparent"
-                }`}
-                onClick={() => handleSetCurrentPage("all")}
-              >
-                <FontAwesomeIcon icon={faHouse} />
-                <p className="hidden sm:block">All notes</p>
-              </Link>
-            </li>
-            <li className="sm:hidden">
-              <Link
-                to={"/"}
-                className={`py-2 px-3 flex gap-4 rounded-xl items-center ${
-                  props.currentPage === "all"
-                    ? "bg-slate-200"
-                    : "bg-transparent"
-                }`}
-                onClick={() => handleSetCurrentPage("all")}
-              >
-                <FontAwesomeIcon icon={faSearch} />
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                to={"/"}
-                className={`py-2 px-3 flex gap-4 rounded-xl items-center ${
-                  props.currentPage === "archived"
-                    ? "bg-slate-200"
-                    : "bg-transparent"
-                }`}
-                onClick={() => handleSetCurrentPage("archived")}
-              >
-                <FontAwesomeIcon icon={faBoxArchive} />
-                <p className="hidden sm:block">Archived notes</p>
-              </Link>
-            </li>
-            <li className="sm:hidden">
-              <Link
-                to={"/"}
-                className={`py-2 px-3 flex gap-4 rounded-xl items-center ${
-                  props.currentPage === "all"
-                    ? "bg-slate-200"
-                    : "bg-transparent"
-                }`}
-                onClick={() => handleSetCurrentPage("all")}
-              >
-                <FontAwesomeIcon icon={faTag} />
-              </Link>
-            </li>
-            <li className="sm:hidden">
-              <Link
-                to={"/"}
-                className={`py-2 px-3 flex gap-4 rounded-xl items-center ${
-                  props.currentPage === "all"
-                    ? "bg-slate-200"
-                    : "bg-transparent"
-                }`}
-                onClick={() => handleSetCurrentPage("all")}
-              >
-                <FontAwesomeIcon icon={faGear} />
-              </Link>
-            </li>
+          <ul className="flex sm:flex-col justify-around sm:justify-start">
+            {navigationLinks.map((link, index) => {
+              return (
+                <li className="flex-1">
+                  <Link
+                    to={link.link}
+                    className={`py-2 px-3 flex gap-4 sm:rounded-xl rounded-md items-center justify-center ${
+                      props.currentPage.toLowerCase() ===
+                      link.title.toLowerCase()
+                        ? "bg-blue-200"
+                        : "bg-transparent"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={link.icon} className="h-5 w-5" />
+                    <p className="hidden sm:block">{link.title}</p>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDate } from "~/utils/utils";
 
 interface Props {
   title: string;
@@ -20,7 +21,7 @@ const Card = (props: Props) => {
           </li>
         ))}
       </ul>
-      <p>{props.updatedDate}</p>
+      <p>{formatDate(props.updatedDate ? props.updatedDate : "")}</p>
     </article>
   );
 };

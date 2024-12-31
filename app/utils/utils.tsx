@@ -1,7 +1,13 @@
-import { redirect } from "react-router";
 import { currentUrl } from "~/data/constant";
-import type { Note } from "~/models/Note";
+import { NoteFactory } from "~/factories/NoteFactory";
+import { headers } from "~/hooks/useFetch";
+import type { Note, NoteApi } from "~/models/Note";
 
+/**
+ * Order the array by date
+ * @param array 
+ * @returns new array ordered
+ */
 export const orderArrayByDate = <Type extends Note>(array: Type[]): Type[] => {
   return array.sort((a, b) => {
     const dateA = a.date ? new Date(a.date) : new Date();
@@ -10,73 +16,70 @@ export const orderArrayByDate = <Type extends Note>(array: Type[]): Type[] => {
   });
 };
 
-export const deleteNote = (
-  currentNoteId: string,
-  callback: (path: string) => void
-) => {
-  fetch(currentUrl + "/notes/" + currentNoteId, {
-    method: "delete",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000",
-      "Access-Control-Allow-Credentials": "true",
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      callback("/notes");
-    })
-    .catch((err) => console.log(err));
+export const formatNotes = (array: NoteApi[]): Note[] => {
+  let formattedNotes = array?.map(
+    (note) => new NoteFactory(note, "apiV1") as Note
+  );
+  formattedNotes = orderArrayByDate(formattedNotes);
+  return formattedNotes;
 };
 
-export const createEmptyNote = async (callback: (path: string) => void) => {
+/**
+ * 
+ * @param date: string format
+ * @returns "29 Dec 2024" format
+ */
+export const formatDate = (date: string):string =>  new Date(date).toDateString().slice(3)
+
+
+export const createEmptyNote = async () => {
   const newEmptyNote = {
     title: "",
     tags: [],
     content: "",
   };
 
-  await fetch(currentUrl + "/notes", {
+  return await fetch(currentUrl + "/notes", {
     method: "post",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000",
-      "Access-Control-Allow-Credentials": "true",
-    },
+    headers: headers,
     body: JSON.stringify(newEmptyNote),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      callback("/notes");
-    })
-    .catch((err) => console.log(err));
+  });
 };
 
-export const updateMemo = (
-  memo: {
-    id: string;
-    title: string;
-    content: string;
-    tags: string[];
-  },
-  callback: (path: string) => void
-) => {
-  fetch(currentUrl + "/notes/" + memo.id, {
-    method: "put",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000",
-      "Access-Control-Allow-Credentials": "true",
-    },
-    body: JSON.stringify(memo),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      callback("/notes");
-      redirect(`/notes/${memo.id}`);
-    })
-    .catch((err) => console.log(err));
+export const getNotes = async (id?: string) => {
+  return await fetch(`${currentUrl}/notes${id ? "/" + id : ""}`, {
+    method: "GET",
+    headers: headers,
+  });
+};
+
+export const deleteNote = async (id: string) => {
+  return await fetch(`${currentUrl}/notes/${id}`, {
+    method: "DELETE",
+    headers: headers,
+  });
+};
+
+export const updateNote = async (formData: FormData, id?: string) => {
+  const updates = Object.fromEntries(formData);
+  console.log(updates);
+  const memoFormData = JSON.parse(updates.memoFormData as string);
+
+  const updatedNote = {
+    title: updates.title ? updates.title : undefined,
+    content: updates.content ? updates.content : undefined,
+    tags: memoFormData.tags ? memoFormData.tags : undefined,
+  } as {
+    title?: string | undefined;
+    content?: string | undefined;
+    tags: string[] | undefined;
+  };
+
+  if (id) {
+    return await fetch(`${currentUrl}/notes/${id}`, {
+      method: "PATCH",
+      headers: headers,
+      body: JSON.stringify(updatedNote),
+    });
+  }
 };

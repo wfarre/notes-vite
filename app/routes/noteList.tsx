@@ -1,30 +1,44 @@
 import React, { useEffect, useState } from "react";
+import { redirect } from "react-router";
 import NotesList from "~/components/layout/NotesList";
-import { NoteFactory } from "~/factories/NoteFactory";
-import { useFetch } from "~/hooks/useFetch";
+import { currentUrl } from "~/data/constant";
 import type { Note } from "~/models/Note";
-import { formatNotes } from "~/welcome/welcome";
+import type { Route } from "../+types/root";
+import { createEmptyNote, formatNotes } from "~/utils/utils";
 
-const noteList = () => {
+export const clientLoader = async ({ params }: Route.LoaderArgs) => {
+  try {
+    const response = await fetch(currentUrl + "/notes");
+    if (!response.ok) {
+      throw new Error("Oops something went wrong!");
+    }
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const clientAction = async ({ params }: Route.ClientActionArgs) => {
+  try {
+    const response = await createEmptyNote();
+    if (!response.ok) {
+      throw new Error("Opppsie!");
+    }
+    const newNote = await response.json();
+    return redirect(`/notes/${newNote._id}`);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const noteList = ({ loaderData }: Route.ComponentProps) => {
   const [allNotes, setAllNotes] = useState<Note[]>([]);
 
-  const [{ isLoading, error, data }, fetchData] = useFetch("/notes");
-
   useEffect(() => {
-    setAllNotes(formatNotes(data));
-  }, [data]);
+    loaderData && setAllNotes(formatNotes(loaderData));
+  }, [loaderData]);
 
-  return (
-    <NotesList
-      notesList={allNotes}
-      createEmptyNote={function (): void {
-        throw new Error("Function not implemented.");
-      }}
-      setCurrentNote={function (noteId: string): void {
-        throw new Error("Function not implemented.");
-      }}
-    />
-  );
+  return <NotesList notesList={allNotes} additionalClassName="sm:hidden" />;
 };
 
 export default noteList;

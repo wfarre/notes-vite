@@ -4,12 +4,8 @@ import Header from "~/components/layout/Header";
 import NotesList from "~/components/layout/NotesList";
 import { useEffect, useState } from "react";
 import { currentUrl } from "~/data/constant";
-import type { Note, NoteApi } from "~/models/Note";
-import { headers, useFetch } from "~/hooks/useFetch";
-import EditMemoButtons from "~/components/layout/EditMemoButtons";
-import { createEmptyNote, orderArrayByDate } from "~/utils/utils";
-import { NoteFactory } from "~/factories/NoteFactory";
-import MemoView from "~/components/layout/MemoView";
+import type { Note } from "~/models/Note";
+import { formatNotes, getNotes } from "~/utils/utils";
 import { Outlet, redirect } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
@@ -19,33 +15,9 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const fetchData = async (path: String) => {
-  const data = await fetch(currentUrl + path, {
-    method: "GET",
-    headers: headers,
-  })
-    .then((res) => {
-      return res.json();
-    })
-    .then((data) => {
-      return data;
-    })
-    .catch((error) => console.log(error));
-
-  return data;
-};
-
-export const formatNotes = (array: NoteApi[]): Note[] => {
-  let formattedNotes = array?.map(
-    (note) => new NoteFactory(note, "apiV1") as Note
-  );
-  formattedNotes = orderArrayByDate(formattedNotes);
-  return formattedNotes;
-};
-
 export const clientLoader = async ({ params }: Route.LoaderArgs) => {
   try {
-    const response = await fetch(currentUrl + "/notes");
+    const response = await getNotes();
     if (!response.ok) {
       throw new Error("Oops something went wrong!");
     }
@@ -69,67 +41,39 @@ export const clientAction = async ({ params }: Route.ClientActionArgs) => {
 };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const [currentPage, setCurrentPage] = useState<"all" | "archived">("all");
-  const [currentNote, setCurrentNote] = useState(0);
+  const [currentPage, setCurrentPage] = useState<"all notes" | "archived notes" | "search" | "tags" | "settings">("all notes");
   const [allNotes, setAllNotes] = useState<Note[]>([]);
-  const [currentNoteId, setCurrentNoteId] = useState("");
 
-  // const [{ isLoading, error, data }, fetchData] = useFetch("/notes");
-
-  // useEffect(() => {
-  //   setAllNotes(formatNotes(data));
-  // }, [data]);
-  // useEffect(() => {
-  //   setAllNotes(formatNotes(loaderData));
-
-  // }, [loaderData.])
   useEffect(() => {
     const formattedNotes = formatNotes(loaderData);
     setAllNotes(formattedNotes);
   }, [loaderData]);
 
-  console.log(loaderData);
   return (
     <div className="h-[100vh] max-h-[100vh]">
       <div className="grid grid-cols-5 auto-rows-auto h-full grid-rows-12">
         <SideNavbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <Header />
-
-        {/* <main className="sm:grid h-full grid-cols-4 sm:col-[2/-1] row-[2/-1] relative content-stretch auto-rows-auto overflow-auto grid-rows-12 col-span-full">
-          <Outlet />
-        </main> */}
-
-        <main className="sm:grid h-full grid-cols-4 sm:col-[2/-1] row-[2/-1] relative content-stretch auto-rows-auto overflow-auto grid-rows-12">
+        <main className="sm:grid h-full grid-cols-4 sm:col-[2/-1] row-[2/-1] relative content-stretch auto-rows-auto overflow-auto grid-rows-12 col-span-full">
           <NotesList
             notesList={allNotes}
-            createEmptyNote={() => createEmptyNote(fetchData)}
-            setCurrentNote={(noteId) => setCurrentNoteId(noteId)}
+            additionalClassName={"hidden sm:grid"}
           />
-          <section className="col-span-3 px-6 border-l-2 border pt-4 overflow-auto row-span-full">
+          <section className="sm:col-span-3 sm:px-6 border-l-[1px] border-r-[1px] sm:pt-4 overflow-auto row-span-full col-span-full h-full px-3">
             {allNotes.length > 0 ? (
-              // <MemoView
-              //   title={allNotes[currentNote]?.title}
-              //   content={allNotes[currentNote]?.content}
-              //   tags={allNotes[currentNote]?.tags}
-              //   date={allNotes[currentNote]?.date}
-              //   id={allNotes[currentNote]?.id}
-              //   fetchData={fetchData}
-              // />
               <Outlet />
             ) : (
-              // <Outlet />
-              // <p>Hello</p>
               <div className="flex items-center justify-center h-full">
                 <p>No Notes yet</p>
               </div>
             )}
           </section>
-          {/* <EditMemoButtons
-            currentNoteId={currentNoteId}
-            // fetchData={fetchData}
-          /> */}
         </main>
       </div>
     </div>
   );
 }
+
+export const HydrateFallback = () => {
+  return <>Loading...</>;
+};
