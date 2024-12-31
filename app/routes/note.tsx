@@ -5,7 +5,7 @@ import { Note } from "~/models/Note";
 import { NoteFactory } from "~/factories/NoteFactory";
 import { redirect } from "react-router";
 import EditMemoButtons from "~/components/layout/EditMemoButtons";
-import { getNotes, updateNote } from "~/utils/utils";
+import { getNotes, updateNote } from "~/utils/methods";
 
 export const clientLoader = async ({ params }: Route.LoaderArgs) => {
   const noteId = params.noteId;

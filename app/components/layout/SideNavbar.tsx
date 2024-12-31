@@ -32,13 +32,13 @@ const navigationLinks = [
   {
     title: "tags",
     icon: faTag,
-    displayOnDesktop: true,
+    displayOnDesktop: false,
     link: "/tags",
   },
   {
-    title: "All Notes",
+    title: "Settings",
     icon: faGear,
-    displayOnDesktop: true,
+    displayOnDesktop: false,
     link: "/settings",
   },
 ];
@@ -56,7 +56,7 @@ const SideNavbar = (props: Props) => {
   };
 
   return (
-    <nav className="grid sm:h-[100vh] items-center grid-cols-1 sm:border-r-[1px] border-r-blue-300 content-start h-auto row-span-12 col-span-full sm:row-span-1 sm:col-span-1 sm:bg-transparent py-4 border-t-[1px]">
+    <nav className="grid sm:h-[100vh] items-center grid-cols-1 sm:border-r-[1px] border-r-blue-300 content-start h-auto row-span-12 col-span-full sm:row-span-1 sm:col-span-1 sm:bg-transparent py-4 border-t-[1px] sm:border-t-0">
       <div className="sm:border-b-[1px] border-blue-300 mx-4 self-start ">
         <h1 className="mb-5 mt-5 hidden sm:block">Notes</h1>
         <div className="mb-2">
@@ -66,7 +66,7 @@ const SideNavbar = (props: Props) => {
                 <li className="flex-1">
                   <Link
                     to={link.link}
-                    className={`py-2 px-3 flex gap-4 sm:rounded-xl rounded-md items-center justify-center ${
+                    className={`py-2 px-3 flex gap-4 sm:rounded-xl rounded-md items-center justify-center sm:justify-start ${!link.displayOnDesktop && "hidden"} ${
                       props.currentPage.toLowerCase() ===
                       link.title.toLowerCase()
                         ? "bg-blue-200"

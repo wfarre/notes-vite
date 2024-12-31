@@ -4,11 +4,12 @@ import NotesList from "~/components/layout/NotesList";
 import { currentUrl } from "~/data/constant";
 import type { Note } from "~/models/Note";
 import type { Route } from "../+types/root";
-import { createEmptyNote, formatNotes } from "~/utils/utils";
+import { formatNotes } from "~/utils/utils";
+import { createEmptyNote, getNotes } from "~/utils/methods";
 
 export const clientLoader = async ({ params }: Route.LoaderArgs) => {
   try {
-    const response = await fetch(currentUrl + "/notes");
+    const response = await getNotes();
     if (!response.ok) {
       throw new Error("Oops something went wrong!");
     }

@@ -42,7 +42,7 @@ const buttonList = [
 
 const EditMemoButtons = (props: Props) => {
   return (
-    <section className="sm:pr-8 sm:pl-4  sm:row-[2/-1] col-span-full sm:col-auto py-3">
+    <section className="sm:pr-8 sm:pl-4  sm:row-[2/-1] col-span-full sm:col-auto py-3 border-b-[1px] sm:border-b-0">
       <ul className="flex gap-4 sm:flex-col sm:mt-5 items-center justify-end sm:items-stretch">
         <li className="mr-auto  sm:hidden">
           <Link to="/notes" className="flex gap-2 items-center w-fit">
@@ -51,11 +51,13 @@ const EditMemoButtons = (props: Props) => {
           </Link>
         </li>
         <li>
+          <Form action="archiveNote" method="patch">
           <Button
             title={"Archive Note"}
             icon={faBoxArchive}
             className={"sm:border sm:border-solid border-gray-200 w-full"}
           />
+          </Form>
         </li>
         <li>
           <Form action="deleteNote" method="delete">

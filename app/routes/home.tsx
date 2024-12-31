@@ -5,8 +5,9 @@ import NotesList from "~/components/layout/NotesList";
 import { useEffect, useState } from "react";
 import { currentUrl } from "~/data/constant";
 import type { Note } from "~/models/Note";
-import { formatNotes, getNotes } from "~/utils/utils";
+import { getNotes } from "~/utils/methods";
 import { Outlet, redirect } from "react-router";
+import { formatNotes } from "~/utils/utils";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -59,7 +60,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             notesList={allNotes}
             additionalClassName={"hidden sm:grid"}
           />
-          <section className="sm:col-span-3 sm:px-6 border-l-[1px] border-r-[1px] sm:pt-4 overflow-auto row-span-full col-span-full h-full px-3">
+          <section className="sm:col-span-3 sm:px-6 sm:border-l-[1px] sm:border-r-[1px] sm:pt-4 overflow-auto row-span-full col-span-full h-full px-3 border-0">
             {allNotes.length > 0 ? (
               <Outlet />
             ) : (

@@ -58,7 +58,7 @@ const MemoView = (props: Props) => {
   return (
     <Form
       method="patch"
-      className="flex flex-col justify-between h-full"
+      className="flex flex-col justify-between h-full py-4"
       id={"note-form"}
     >
       <input
