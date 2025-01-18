@@ -12,6 +12,12 @@ interface Props {
 }
 
 const NotesList = (props: Props) => {
+  console.log(window.location.pathname);
+
+  const path = window.location.pathname.includes("archived")
+    ? "/notes/archived"
+    : "/notes";
+
   return (
     <section
       className={`sm:grid h-full grid-cols-1 overflow-auto sm:row-span-full content-start row-[2/-1] ${props.additionalClassName}`}
@@ -30,7 +36,7 @@ const NotesList = (props: Props) => {
         {props.notesList.map((memo, index) => {
           return (
             <li key={`memo${index}`}>
-              <Link to={`/notes/${memo.id}`}>
+              <Link to={`${path}/${memo.id}`}>
                 <Card
                   title={memo.title}
                   tags={memo.tags}

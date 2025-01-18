@@ -52,3 +52,11 @@ export const updateNote = async (formData: FormData, id?: string) => {
     });
   }
 };
+
+export const archiveNote = async (noteId: string) => {
+  return await fetch(`${currentUrl}/notes/${noteId}/archive`, {
+    method: "PATCH",
+    headers: headers,
+    body: "",
+  });
+};

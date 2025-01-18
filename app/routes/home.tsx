@@ -1,13 +1,15 @@
 import type { Route } from "./+types/home";
-import SideNavbar from "~/components/layout/SideNavbar";
-import Header from "~/components/layout/Header";
-import NotesList from "~/components/layout/NotesList";
 import { useEffect, useState } from "react";
 import { currentUrl } from "~/data/constant";
 import type { Note } from "~/models/Note";
 import { getNotes } from "~/utils/methods";
-import { Outlet, redirect } from "react-router";
-import { formatNotes } from "~/utils/utils";
+import { redirect } from "react-router";
+import {
+  formatNotes,
+  getTagListWithNoRepeatedValueFromAllNotes,
+  searchByInput,
+} from "~/utils/utils";
+import NotesLayout from "~/components/layout/NotesLayout";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,6 +19,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export const clientLoader = async ({ params }: Route.LoaderArgs) => {
+  console.log(params);
+
   try {
     const response = await getNotes();
     if (!response.ok) {
@@ -32,7 +36,7 @@ export const clientAction = async ({ params }: Route.ClientActionArgs) => {
   try {
     const response = await fetch(currentUrl + "/notes", { method: "POST" });
     if (!response.ok) {
-      throw new Error("Opppsie!");
+      throw new Error("Ooppsie!");
     }
     const newNote = await response.json();
     return redirect(`/notes/${newNote._id}`);
@@ -42,36 +46,40 @@ export const clientAction = async ({ params }: Route.ClientActionArgs) => {
 };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const [currentPage, setCurrentPage] = useState<"all notes" | "archived notes" | "search" | "tags" | "settings">("all notes");
+  const [currentPage, setCurrentPage] = useState<
+    "all notes" | "archived notes" | "search" | "tags" | "settings"
+  >("all notes");
   const [allNotes, setAllNotes] = useState<Note[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
 
   useEffect(() => {
-    const formattedNotes = formatNotes(loaderData);
+    setFilteredNotes(searchByInput(allNotes, searchText));
+  }, [searchText]);
+
+  useEffect(() => {
+    let formattedNotes = formatNotes(loaderData);
+
+    formattedNotes = formattedNotes.filter((note) => !note.isArchived);
     setAllNotes(formattedNotes);
+    setFilteredNotes(formattedNotes);
   }, [loaderData]);
 
+  useEffect(() => {
+    setTags(getTagListWithNoRepeatedValueFromAllNotes(allNotes));
+  }, [allNotes]);
+
+  const updateSearchText = (text: string) => {
+    setSearchText(text);
+  };
+
   return (
-    <div className="h-[100vh] max-h-[100vh]">
-      <div className="grid grid-cols-5 auto-rows-auto h-full grid-rows-12">
-        <SideNavbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <Header />
-        <main className="sm:grid h-full grid-cols-4 sm:col-[2/-1] row-[2/-1] relative content-stretch auto-rows-auto overflow-auto grid-rows-12 col-span-full">
-          <NotesList
-            notesList={allNotes}
-            additionalClassName={"hidden sm:grid"}
-          />
-          <section className="sm:col-span-3 sm:px-6 sm:border-l-[1px] sm:border-r-[1px] sm:pt-4 overflow-auto row-span-full col-span-full h-full px-3 border-0">
-            {allNotes.length > 0 ? (
-              <Outlet />
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <p>No Notes yet</p>
-              </div>
-            )}
-          </section>
-        </main>
-      </div>
-    </div>
+    <NotesLayout
+      notes={filteredNotes}
+      tags={tags}
+      updateSearchText={updateSearchText}
+    />
   );
 }
 
