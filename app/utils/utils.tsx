@@ -1,6 +1,13 @@
 import { currentUrl } from "~/data/constant";
-import type { Note } from "~/models/Note";
+import { NoteFactory } from "~/factories/NoteFactory";
+import { headers } from "~/hooks/useFetch";
+import type { Note, NoteApi } from "~/models/Note";
 
+/**
+ * Order the array by date
+ * @param array
+ * @returns new array ordered
+ */
 export const orderArrayByDate = <Type extends Note>(array: Type[]): Type[] => {
   return array.sort((a, b) => {
     const dateA = a.date ? new Date(a.date) : new Date();
@@ -9,65 +16,50 @@ export const orderArrayByDate = <Type extends Note>(array: Type[]): Type[] => {
   });
 };
 
-export const deleteNote = (
-  currentNoteId: string,
-  callback: (path: string) => void
-) => {
-  fetch(currentUrl + "/notes/" + currentNoteId, {
-    method: "delete",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000",
-      "Access-Control-Allow-Credentials": "true",
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      callback("/notes");
-    })
-    .catch((err) => console.log(err));
+export const formatNotes = (array: NoteApi[]): Note[] => {
+  let formattedNotes = array?.map(
+    (note) => new NoteFactory(note, "apiV1") as Note,
+  );
+  formattedNotes = orderArrayByDate(formattedNotes);
+  return formattedNotes;
 };
 
-export const createEmptyNote = async (callback: (path: string) => void) => {
-  const newEmptyNote = {
-    title: "",
-    tags: [],
-    content: "",
-  };
+/**
+ *
+ * @param date: string format
+ * @returns "29 Dec 2024" format
+ */
+export const formatDate = (date: string): string =>
+  new Date(date).toDateString().slice(3);
 
-  await fetch(currentUrl + "/notes", {
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000",
-      "Access-Control-Allow-Credentials": "true",
-    },
-    body: JSON.stringify(newEmptyNote),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      callback("/notes");
-    })
-    .catch((err) => console.log(err));
+export const getTagListWithNoRepeatedValueFromAllNotes = (
+  notes: Note[],
+): string[] => {
+  let tagsHashArray: any = {};
+  let tagsArray: string[] = [];
+  notes.map((note) => {
+    note.tags.map((tag, index) => {
+      if (!tagsHashArray[tag.trim().toLocaleLowerCase()]) {
+        tagsHashArray = {
+          ...tagsHashArray,
+          [tag.trim().toLocaleLowerCase()]: tag,
+        };
+        tagsArray.push(tag);
+      }
+    });
+  });
+  return tagsArray;
 };
 
-export const updateMemo = (
-  memo: { id: string; title: string; content: string; tags: string[] },
-  callback: (path: string) => void
-) => {
-  fetch(currentUrl + "/notes/" + memo.id, {
-    method: "put",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000",
-      "Access-Control-Allow-Credentials": "true",
-    },
-    body: JSON.stringify(memo),
-  })
-    .then((res) => res.json())
-    .then((data) => callback("/notes"))
-    .catch((err) => console.log(err));
+export const searchByInput = (
+  originalArray: Note[],
+  searchText: string,
+): Note[] => {
+  if (searchText === "") return originalArray;
+  else
+    return originalArray.filter(
+      (note) =>
+        note.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchText.toLowerCase()),
+    );
 };

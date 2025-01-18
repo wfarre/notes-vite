@@ -4,6 +4,7 @@ export class Note {
   private _id?: string;
   private _date?: string;
   private _tags: string[];
+  private _isArchived: boolean;
 
   constructor(data: NoteApi) {
     this._title = data.title;
@@ -11,6 +12,7 @@ export class Note {
     this._id = data._id;
     this._tags = data.tags;
     this._date = data.updatedAt;
+    this._isArchived = data.isArchived ? data.isArchived : false;
   }
 
   get title() {
@@ -32,6 +34,10 @@ export class Note {
   get id() {
     return this._id;
   }
+
+  get isArchived() {
+    return this._isArchived;
+  }
 }
 
 export interface NoteApi {
@@ -40,4 +46,5 @@ export interface NoteApi {
   _id?: string;
   updatedAt?: string;
   tags: string[];
+  isArchived?: boolean;
 }

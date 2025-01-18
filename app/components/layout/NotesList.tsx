@@ -3,39 +3,46 @@ import type { Note } from "~/models/Note";
 import Button from "../ui/Button";
 import ListContainer from "./ListContainer";
 import Card from "../ui/Card";
+import { Form, Link } from "react-router";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   notesList: Note[];
-  createEmptyNote: () => void;
-  setCurrentNote: (index: number) => void;
+  additionalClassName: string;
 }
 
 const NotesList = (props: Props) => {
+  console.log(window.location.pathname);
+
+  const path = window.location.pathname.includes("archived")
+    ? "/notes/archived"
+    : "/notes";
+
   return (
-    <section className="grid h-full grid-cols-1 overflow-auto row-span-full content-start ">
-      <div className="pl-8 pr-4">
+    <section
+      className={`sm:grid h-full grid-cols-1 overflow-auto sm:row-span-full content-start row-[2/-1] ${props.additionalClassName}`}
+    >
+      <Form
+        method="POST"
+        className="sm:pl-8 sm:pr-4 absolute bottom-5 right-2 sm:relative sm:bottom-0 sm:right-0"
+      >
         <Button
-          title="+ Create a new note"
-          className="mt-5 mb-3 w-full bg-blue-500 py-3 rounded-xl justify-center text-white"
-          onClick={() => {
-            props.createEmptyNote();
-          }}
+          title="Create a new note"
+          icon={faPlus}
+          className="mt-5 mb-3 w-full bg-blue-500 sm:py-3 rounded-full sm:rounded-xl justify-center text-white"
         />
-      </div>
-      <ListContainer className="pl-8 pr-4">
+      </Form>
+      <ListContainer className="sm:pl-8 sm:pr-4">
         {props.notesList.map((memo, index) => {
           return (
-            <li
-              key={`memo${index}`}
-              onClick={() => {
-                props.setCurrentNote(index);
-              }}
-            >
-              <Card
-                title={memo.title}
-                tags={memo.tags}
-                updatedDate={memo.date}
-              />
+            <li key={`memo${index}`}>
+              <Link to={`${path}/${memo.id}`}>
+                <Card
+                  title={memo.title}
+                  tags={memo.tags}
+                  updatedDate={memo.date}
+                />
+              </Link>
             </li>
           );
         })}

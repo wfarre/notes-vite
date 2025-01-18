@@ -4,11 +4,7 @@ import { currentUrl } from "~/data/constant";
 import type { Note } from "~/models/Note";
 import { getNotes } from "~/utils/methods";
 import { redirect } from "react-router";
-import {
-  formatNotes,
-  getTagListWithNoRepeatedValueFromAllNotes,
-  searchByInput,
-} from "~/utils/utils";
+import { formatNotes } from "~/utils/utils";
 import NotesLayout from "~/components/layout/NotesLayout";
 
 export function meta({}: Route.MetaArgs) {
@@ -19,8 +15,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export const clientLoader = async ({ params }: Route.LoaderArgs) => {
-  console.log(params);
-
   try {
     const response = await getNotes();
     if (!response.ok) {
@@ -50,37 +44,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     "all notes" | "archived notes" | "search" | "tags" | "settings"
   >("all notes");
   const [allNotes, setAllNotes] = useState<Note[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [searchText, setSearchText] = useState("");
-  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
-
-  useEffect(() => {
-    setFilteredNotes(searchByInput(allNotes, searchText));
-  }, [searchText]);
 
   useEffect(() => {
     let formattedNotes = formatNotes(loaderData);
-
-    formattedNotes = formattedNotes.filter((note) => !note.isArchived);
+    formattedNotes = formattedNotes.filter((note) => note.isArchived);
     setAllNotes(formattedNotes);
-    setFilteredNotes(formattedNotes);
   }, [loaderData]);
 
-  useEffect(() => {
-    setTags(getTagListWithNoRepeatedValueFromAllNotes(allNotes));
-  }, [allNotes]);
-
-  const updateSearchText = (text: string) => {
-    setSearchText(text);
-  };
-
-  return (
-    <NotesLayout
-      notes={filteredNotes}
-      tags={tags}
-      updateSearchText={updateSearchText}
-    />
-  );
+  return <NotesLayout notes={allNotes} />;
 }
 
 export const HydrateFallback = () => {
